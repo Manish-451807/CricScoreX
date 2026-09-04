@@ -102,14 +102,54 @@ cricket-scorer/
 
 ## 🖼️ Screenshots
 
-### Dashboard
+The following screenshots demonstrate the main features and user interface of the Cricket Scorer application.
+
+### 🏠 Dashboard
+
+The dashboard provides a quick overview of registered teams, matches, completed matches, and currently live matches.
 
 ![Dashboard](screenshots/dashboard.png)
 
-### Teams
+
+### 👥 Teams
+
+The Teams page allows users to view and manage their registered cricket teams.
 
 ![Teams](screenshots/teams.png)
 
+
+### 🏏 Create Match
+
+The Create Match page allows users to configure a match, select teams, set the number of overs, configure the toss, and confirm the Playing XI.
+
+![Create Match](screenshots/create-match.png)
+
+
+### 🔴 Live Matches
+
+The Live Matches page displays all currently active matches and allows users to open a match and continue live scoring.
+
+![Live Matches](screenshots/live-matches.png)
+
+
+### 📋 Match History
+
+The Match History page displays completed matches along with their results and provides access to detailed scorecards.
+
+![Match History](screenshots/match-history.png)
+
+
+### 📊 Player Statistics
+
+The Player Statistics page provides career-style statistics calculated from completed matches, including runs, strike rate, wickets, overs, and economy.
+
+#### Top Player Statistics
+
+![Player Statistics Overview](screenshots/player-stats1.png)
+
+#### Complete Player Statistics
+
+![Complete Player Statistics](screenshots/player-stats2.png)
 ## 🧠 Application Architecture
 
 The JavaScript code is separated by responsibility:
