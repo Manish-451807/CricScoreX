@@ -1,0 +1,8 @@
+CRICKET SCORER — Browser-Based Cricket Scoring & Statistics System
+
+• Developed a responsive cricket scoring web application using HTML5, CSS3 and Vanilla JavaScript.
+• Implemented ball-by-ball scoring, wickets, extras, strike rotation, over management and Playing XI selection.
+• Built modular client-side architecture with LocalStorage persistence for teams, live matches and completed scorecards.
+• Added match history, full scorecards, searchable player statistics, batting/bowling analytics and print-friendly scorecards.
+
+Tech: HTML5, CSS3, JavaScript (ES6+), LocalStorage

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cricket Scorer — Player Statistics</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="nav-brand" href="index.html">&#127951; Cricket Scorer</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
+    <div class="nav-menu" id="navMenu">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="teams.html">Teams</a>
+      <a class="nav-link" href="create-match.html">Create Match</a>
+      <a class="nav-link" href="live-match.html">Live Matches</a>
+      <a class="nav-link" href="match-history.html">Match History</a>
+      <a class="nav-link" href="player-stats.html">Player Stats</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header page-header-actions">
+    <div>
+      <h1>Player Statistics</h1>
+      <p>Career-style statistics calculated from all completed matches saved on this device.</p>
+    </div>
+    <button class="btn btn-secondary" id="refreshStatsBtn">↻ Refresh</button>
+  </div>
+
+  <div id="emptyState" class="card hidden">
+    <p class="empty-state">
+      No completed matches yet. Finish a match to start building player statistics.
+    </p>
+  </div>
+
+  <div id="statsContent">
+    <div class="grid grid-4" style="margin-bottom:30px;">
+      <div class="stat-card">
+        <div class="stat-value" id="statPlayers">0</div>
+        <div class="stat-label">Players Tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statMatches">0</div>
+        <div class="stat-label">Completed Matches</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statRuns">0</div>
+        <div class="stat-label">Total Runs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statWickets">0</div>
+        <div class="stat-label">Total Wickets</div>
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h2 style="margin-top:0;">Top Run Scorers</h2>
+        <div class="table-wrap" style="box-shadow:none; padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Runs</th>
+                <th>Avg</th>
+                <th>SR</th>
+              </tr>
+            </thead>
+            <tbody id="topBattersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0;">Top Wicket Takers</h2>
+        <div class="table-wrap" style="box-shadow:none; padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>W</th>
+                <th>Overs</th>
+                <th>Econ</th>
+              </tr>
+            </thead>
+            <tbody id="topBowlersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-heading-row">
+        <div>
+          <h2>All Player Statistics</h2>
+          <p class="section-subtitle" id="playerStatsCount">Showing all players</p>
+        </div>
+        <div class="stats-search">
+          <input type="search" id="playerSearch" placeholder="Search player..." aria-label="Search player statistics" />
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Mat</th>
+              <th>Inns</th>
+              <th>Runs</th>
+              <th>HS</th>
+              <th>Avg</th>
+              <th>SR</th>
+              <th>4s</th>
+              <th>6s</th>
+              <th>W</th>
+              <th>Overs</th>
+              <th>Econ</th>
+            </tr>
+          </thead>
+          <tbody id="allStatsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="playerModal">
+  <div class="modal-box player-profile-modal">
+    <div class="player-profile-head">
+      <div class="player-avatar" id="profileAvatar">P</div>
+      <div>
+        <h3 id="profileName">Player</h3>
+        <p id="profileSubtitle">Career summary</p>
+      </div>
+    </div>
+    <div class="profile-stat-grid" id="profileStats"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="closePlayerModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Cricket Score Tally &middot; Player statistics from completed matches</div>
+
+<script src="js/storage.js"></script>
+<script src="js/teams.js"></script>
+<script src="js/match.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/history.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  let allPlayers = [];
+
+  document.addEventListener("DOMContentLoaded", function () {
+    renderPlayerStats();
+    document.getElementById("playerSearch").addEventListener("input", filterPlayers);
+    document.getElementById("refreshStatsBtn").addEventListener("click", renderPlayerStats);
+    document.getElementById("closePlayerModal").addEventListener("click", closePlayerModal);
+    document.getElementById("allStatsBody").addEventListener("click", function (e) {
+      const row = e.target.closest("tr[data-player-id]");
+      if (row) openPlayerModal(row.dataset.playerId);
+    });
+  });
+
+  function renderPlayerStats() {
+    const matches = StatsManager.getCompletedMatches();
+    const stats = StatsManager.getPlayerStats();
+    allPlayers = stats;
+
+    if (matches.length === 0 || stats.length === 0) {
+      document.getElementById("statsContent").classList.add("hidden");
+      document.getElementById("emptyState").classList.remove("hidden");
+      return;
+    }
+
+    document.getElementById("statPlayers").textContent = stats.length;
+    document.getElementById("statMatches").textContent = matches.length;
+    document.getElementById("statRuns").textContent =
+      stats.reduce((sum, p) => sum + p.runs, 0);
+    document.getElementById("statWickets").textContent =
+      stats.reduce((sum, p) => sum + p.wickets, 0);
+
+    renderTopBatters(StatsManager.getTopBatters(stats));
+    renderTopBowlers(StatsManager.getTopBowlers(stats));
+    renderAllStats(stats);
+  }
+
+  function renderTopBatters(players) {
+    const body = document.getElementById("topBattersBody");
+
+    if (players.length === 0) {
+      body.innerHTML = '<tr><td colspan="4">No batting data yet.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = players.map((p) => `
+      <tr>
+        <td><strong>${escapeHtml(p.name)}</strong></td>
+        <td>${p.runs}</td>
+        <td>${StatsManager.formatAverage(p.average)}</td>
+        <td>${p.strikeRate.toFixed(2)}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderTopBowlers(players) {
+    const body = document.getElementById("topBowlersBody");
+
+    if (players.length === 0) {
+      body.innerHTML = '<tr><td colspan="4">No bowling data yet.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = players.map((p) => `
+      <tr>
+        <td><strong>${escapeHtml(p.name)}</strong></td>
+        <td>${p.wickets}</td>
+        <td>${StatsManager.formatOvers(p.oversBalls)}</td>
+        <td>${p.economy.toFixed(2)}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderAllStats(players) {
+    const body = document.getElementById("allStatsBody");
+
+    players.sort((a, b) =>
+      b.runs - a.runs ||
+      b.wickets - a.wickets ||
+      a.name.localeCompare(b.name)
+    );
+
+    body.innerHTML = players.map((p) => `
+      <tr data-player-id="${escapeHtml(p.id)}" class="clickable-row" title="View player summary">
+        <td><strong>${escapeHtml(p.name)}</strong></td>
+        <td>${p.matches}</td>
+        <td>${p.innings}</td>
+        <td>${p.runs}</td>
+        <td>${p.highestScore}</td>
+        <td>${StatsManager.formatAverage(p.average)}</td>
+        <td>${p.strikeRate.toFixed(2)}</td>
+        <td>${p.fours}</td>
+        <td>${p.sixes}</td>
+        <td>${p.wickets}</td>
+        <td>${StatsManager.formatOvers(p.oversBalls)}</td>
+        <td>${p.economy.toFixed(2)}</td>
+      </tr>
+    `).join("");
+    document.getElementById("playerStatsCount").textContent = `Showing ${players.length} of ${allPlayers.length} players`;
+  }
+
+  function filterPlayers() {
+    const query = document.getElementById("playerSearch").value.trim().toLowerCase();
+    const filtered = allPlayers.filter((p) => p.name.toLowerCase().includes(query));
+    renderAllStats(filtered);
+  }
+
+  function openPlayerModal(id) {
+    const p = allPlayers.find((player) => String(player.id) === String(id));
+    if (!p) return;
+    document.getElementById("profileAvatar").textContent = p.name.charAt(0).toUpperCase();
+    document.getElementById("profileName").textContent = p.name;
+    document.getElementById("profileSubtitle").textContent = `${p.matches} match${p.matches === 1 ? "" : "es"} • ${p.innings} batting innings`;
+    document.getElementById("profileStats").innerHTML = `
+      <div class="profile-stat"><span>Runs</span><strong>${p.runs}</strong></div>
+      <div class="profile-stat"><span>Highest</span><strong>${p.highestScore}</strong></div>
+      <div class="profile-stat"><span>Average</span><strong>${StatsManager.formatAverage(p.average)}</strong></div>
+      <div class="profile-stat"><span>Strike Rate</span><strong>${p.strikeRate.toFixed(2)}</strong></div>
+      <div class="profile-stat"><span>4s / 6s</span><strong>${p.fours} / ${p.sixes}</strong></div>
+      <div class="profile-stat"><span>Wickets</span><strong>${p.wickets}</strong></div>
+      <div class="profile-stat"><span>Overs</span><strong>${StatsManager.formatOvers(p.oversBalls)}</strong></div>
+      <div class="profile-stat"><span>Economy</span><strong>${p.economy.toFixed(2)}</strong></div>`;
+    document.getElementById("playerModal").classList.remove("hidden");
+  }
+
+  function closePlayerModal() {
+    document.getElementById("playerModal").classList.add("hidden");
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+</script>
+
+</body>
+</html>

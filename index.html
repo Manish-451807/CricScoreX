@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cricket Scorer — Dashboard</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="dashboard">
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="nav-brand" href="index.html">&#127951; Cricket Scorer</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
+    <div class="nav-menu" id="navMenu">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="teams.html">Teams</a>
+      <a class="nav-link" href="create-match.html">Create Match</a>
+      <a class="nav-link" href="live-match.html">Live Matches</a>
+      <a class="nav-link" href="match-history.html">Match History</a>
+      <a class="nav-link" href="player-stats.html">Player Stats</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="container">
+    <h1>&#127951; Cricket Score Tally</h1>
+    <p>Register your teams, set up a match, and score every ball live — right from your browser. All your data stays saved on this device.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="create-team.html">+ Create Team</a>
+      <a class="btn btn-outline" href="teams.html">My Teams</a>
+      <a class="btn btn-outline" href="create-match.html">Create Match</a>
+      <a class="btn btn-outline" href="match-history.html">Match History</a>
+      <a class="btn btn-outline" href="player-stats.html">Player Stats</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="grid grid-4" style="margin-bottom: 30px;">
+    <div class="stat-card">
+      <div class="stat-value" id="statTotalTeams">0</div>
+      <div class="stat-label">Total Teams</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statTotalMatches">0</div>
+      <div class="stat-label">Total Matches</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statCompletedMatches">0</div>
+      <div class="stat-label">Completed Matches</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statLiveMatches">0</div>
+      <div class="stat-label">Live Matches</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>&#128308; Live Matches</h2>
+    <div class="grid grid-3" id="dashboardLiveList">
+      <p class="empty-state">No live matches right now.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Quick Actions</h2>
+    <div class="grid grid-3 quick-actions">
+      <a class="card action-card" href="create-team.html"><span class="action-icon">👥</span><strong>Create a Team</strong><span>Add a squad of 11 players.</span></a>
+      <a class="card action-card" href="create-match.html"><span class="action-icon">🏏</span><strong>Create a Match</strong><span>Select the playing XI and start scoring.</span></a>
+      <a class="card action-card" href="player-stats.html"><span class="action-icon">📊</span><strong>View Player Stats</strong><span>Review runs, wickets and career metrics.</span></a>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>How It Works</h2>
+    <div class="card">
+      <div class="how-it-works-step">
+        <span class="step-num">1</span>
+        <div><strong>Create Teams</strong> — register teams with 11 players, including captain, vice-captain, and wicket-keeper.</div>
+      </div>
+      <div class="how-it-works-step">
+        <span class="step-num">2</span>
+        <div><strong>Create a Match</strong> — pick your two teams, match format, venue, and toss result.</div>
+      </div>
+      <div class="how-it-works-step">
+        <span class="step-num">3</span>
+        <div><strong>Start Scoring</strong> — pick openers and a bowler, then tap the scoring buttons for every ball.</div>
+      </div>
+      <div class="how-it-works-step">
+        <span class="step-num">4</span>
+        <div><strong>Get the Result</strong> — the app auto-calculates the target, run rate, and winner, and saves the full scorecard to Match History.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Cricket Score Tally &middot; 100% offline, runs entirely in your browser</div>
+
+<script src="js/storage.js"></script>
+<script src="js/teams.js"></script>
+<script src="js/match.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/history.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

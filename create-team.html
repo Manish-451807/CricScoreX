@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cricket Scorer — Create Team</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="nav-brand" href="index.html">&#127951; Cricket Scorer</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
+    <div class="nav-menu" id="navMenu">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="teams.html">Teams</a>
+      <a class="nav-link" href="create-match.html">Create Match</a>
+      <a class="nav-link" href="live-match.html">Live Matches</a>
+      <a class="nav-link" href="match-history.html">Match History</a>
+      <a class="nav-link" href="player-stats.html">Player Stats</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1 id="pageTitle">Create Team</h1>
+    <p>Register a team and its 11 players. All fields marked required must be filled before saving.</p>
+  </div>
+
+  <div id="errorBox" class="error-box hidden"></div>
+
+  <form id="teamForm">
+    <div class="card" style="margin-bottom:20px;">
+      <h2 style="margin-top:0;">Team Details</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teamName">Team Name *</label>
+          <input type="text" id="teamName" placeholder="e.g. Mumbai Warriors" required />
+        </div>
+        <div class="form-group">
+          <label for="teamCity">City</label>
+          <input type="text" id="teamCity" placeholder="e.g. Mumbai" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teamCaptain">Captain Name *</label>
+          <input type="text" id="teamCaptain" placeholder="e.g. Rahul" required />
+        </div>
+        <div class="form-group">
+          <label for="teamViceCaptain">Vice Captain Name</label>
+          <input type="text" id="teamViceCaptain" placeholder="e.g. Suresh" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teamContactName">Contact Person Name *</label>
+          <input type="text" id="teamContactName" placeholder="e.g. Rahul" required />
+        </div>
+        <div class="form-group">
+          <label for="teamPhone">Mobile Number *</label>
+          <input type="tel" id="teamPhone" placeholder="10-digit mobile number" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="teamEmail">Email (optional)</label>
+          <input type="email" id="teamEmail" placeholder="team@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="teamLogo">Team Logo (optional)</label>
+          <input type="file" id="teamLogo" accept="image/*" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="teamDescription">Short Team Description</label>
+        <textarea id="teamDescription" rows="2" placeholder="A short line about your team"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Playing Squad — 11 Players</h2>
+      <p style="color:var(--gray-700); font-size:0.9rem;">Fill in all 11 players. Mark exactly one player each as Captain, Vice Captain, and Wicket-Keeper.</p>
+      <div id="playersContainer"></div>
+    </div>
+
+    <div style="display:flex; gap:12px; margin:24px 0 60px;">
+      <button type="submit" class="btn btn-primary">Save Team</button>
+      <a href="teams.html" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/teams.js"></script>
+<script src="js/match.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/history.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  const PLAYER_COUNT = 11;
+  let editingTeamId = null;
+  let logoDataUrl = "";
+
+  document.addEventListener("DOMContentLoaded", function () {
+    buildPlayerRows();
+
+    const idParam = getQueryParam("id");
+    if (idParam) {
+      editingTeamId = idParam;
+      loadTeamForEdit(idParam);
+      document.getElementById("pageTitle").textContent = "Edit Team";
+    }
+
+    document.getElementById("teamLogo").addEventListener("change", handleLogoUpload);
+    document.getElementById("teamForm").addEventListener("submit", handleSubmit);
+  });
+
+  function buildPlayerRows() {
+    const container = document.getElementById("playersContainer");
+    let html = "";
+    for (let i = 0; i < PLAYER_COUNT; i++) {
+      html += playerRowTemplate(i);
+    }
+    container.innerHTML = html;
+
+    // Enforce single-select behaviour for captain / vice-captain / wicket-keeper
+    document.querySelectorAll(".flag-captain").forEach((cb) => {
+      cb.addEventListener("change", () => enforceSingleFlag(".flag-captain", cb));
+    });
+    document.querySelectorAll(".flag-vc").forEach((cb) => {
+      cb.addEventListener("change", () => enforceSingleFlag(".flag-vc", cb));
+    });
+    document.querySelectorAll(".flag-wk").forEach((cb) => {
+      cb.addEventListener("change", () => enforceSingleFlag(".flag-wk", cb));
+    });
+  }
+
+  function playerRowTemplate(i) {
+    const roleOptions = TeamManager.ROLES.map((r) => `<option value="${r}">${r}</option>`).join("");
+    return `
+      <div class="player-card" data-index="${i}">
+        <div class="player-card-header"><span>Player ${i + 1}</span></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Player Name *</label>
+            <input type="text" class="p-name" placeholder="Full name" />
+          </div>
+          <div class="form-group">
+            <label>Jersey Number *</label>
+            <input type="number" class="p-jersey" min="0" max="99" placeholder="e.g. 7" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select class="p-role">${roleOptions}</select>
+        </div>
+        <div class="player-flags">
+          <label><input type="checkbox" class="flag-captain" /> Captain</label>
+          <label><input type="checkbox" class="flag-vc" /> Vice Captain</label>
+          <label><input type="checkbox" class="flag-wk" /> Wicket-Keeper</label>
+        </div>
+      </div>`;
+  }
+
+  function enforceSingleFlag(selector, changedEl) {
+    if (!changedEl.checked) return;
+    document.querySelectorAll(selector).forEach((cb) => {
+      if (cb !== changedEl) cb.checked = false;
+    });
+  }
+
+  function handleLogoUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      logoDataUrl = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function collectPlayers() {
+    const cards = document.querySelectorAll(".player-card");
+    const players = [];
+    cards.forEach((card) => {
+      players.push({
+        id: card.dataset.playerId || StorageManager.generateId("plyr"),
+        name: card.querySelector(".p-name").value,
+        jerseyNumber: card.querySelector(".p-jersey").value,
+        role: card.querySelector(".p-role").value,
+        isCaptain: card.querySelector(".flag-captain").checked,
+        isViceCaptain: card.querySelector(".flag-vc").checked,
+        isWicketKeeper: card.querySelector(".flag-wk").checked,
+      });
+    });
+    return players;
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    const formData = {
+      id: editingTeamId,
+      name: document.getElementById("teamName").value,
+      captain: document.getElementById("teamCaptain").value,
+      viceCaptain: document.getElementById("teamViceCaptain").value,
+      contactName: document.getElementById("teamContactName").value,
+      phone: document.getElementById("teamPhone").value,
+      email: document.getElementById("teamEmail").value,
+      city: document.getElementById("teamCity").value,
+      logo: logoDataUrl,
+      description: document.getElementById("teamDescription").value,
+    };
+
+    const players = collectPlayers();
+    const team = TeamManager.buildTeamFromForm(formData, players);
+    const result = TeamManager.validateTeam(team);
+
+    if (!result.valid) {
+      showErrors(result.errors);
+      return;
+    }
+
+    StorageManager.saveTeam(team);
+    window.location.href = "teams.html";
+  }
+
+  function showErrors(errors) {
+    const box = document.getElementById("errorBox");
+    box.innerHTML = "<strong>Please fix the following:</strong><ul>" +
+      errors.map((e) => `<li>${e}</li>`).join("") + "</ul>";
+    box.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function loadTeamForEdit(id) {
+    const team = StorageManager.getTeamById(id);
+    if (!team) return;
+
+    document.getElementById("teamName").value = team.name || "";
+    document.getElementById("teamCaptain").value = team.captain || "";
+    document.getElementById("teamViceCaptain").value = team.viceCaptain || "";
+    document.getElementById("teamContactName").value = team.contactName || "";
+    document.getElementById("teamPhone").value = team.phone || "";
+    document.getElementById("teamEmail").value = team.email || "";
+    document.getElementById("teamCity").value = team.city || "";
+    document.getElementById("teamDescription").value = team.description || "";
+    logoDataUrl = team.logo || "";
+
+    const cards = document.querySelectorAll(".player-card");
+    team.players.forEach((p, i) => {
+      if (!cards[i]) return;
+      cards[i].dataset.playerId = p.id;
+      cards[i].querySelector(".p-name").value = p.name || "";
+      cards[i].querySelector(".p-jersey").value = p.jerseyNumber || "";
+      cards[i].querySelector(".p-role").value = p.role || "Batsman";
+      cards[i].querySelector(".flag-captain").checked = !!p.isCaptain;
+      cards[i].querySelector(".flag-vc").checked = !!p.isViceCaptain;
+      cards[i].querySelector(".flag-wk").checked = !!p.isWicketKeeper;
+    });
+  }
+</script>
+</body>
+</html>

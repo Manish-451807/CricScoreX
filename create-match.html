@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cricket Scorer — Create Match</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="nav-brand" href="index.html">&#127951; Cricket Scorer</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
+    <div class="nav-menu" id="navMenu">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="teams.html">Teams</a>
+      <a class="nav-link" href="create-match.html">Create Match</a>
+      <a class="nav-link" href="live-match.html">Live Matches</a>
+      <a class="nav-link" href="match-history.html">Match History</a>
+      <a class="nav-link" href="player-stats.html">Player Stats</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Create Match</h1>
+    <p>Set up teams, toss, and the opening line-up. You'll need at least two registered teams with 11 players each.</p>
+  </div>
+
+  <div id="noTeamsWarning" class="error-box hidden">
+    You need at least two registered teams before creating a match. <a href="create-team.html">Create a team &rarr;</a>
+  </div>
+
+  <div id="errorBox" class="error-box hidden"></div>
+
+  <!-- STEP 1: Match info, teams, toss -->
+  <div class="card" id="step1" style="margin-bottom:20px;">
+    <h2 style="margin-top:0;">Step 1 — Match & Toss Details</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="matchName">Match Name *</label>
+        <input type="text" id="matchName" placeholder="e.g. Warriors vs Kings, Match 1" />
+      </div>
+      <div class="form-group">
+        <label for="matchDate">Match Date *</label>
+        <input type="date" id="matchDate" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="matchVenue">Venue</label>
+        <input type="text" id="matchVenue" placeholder="e.g. City Ground" />
+      </div>
+      <div class="form-group">
+        <label for="matchOvers">Number of Overs *</label>
+        <input type="number" id="matchOvers" min="1" step="1" value="20" required
+               placeholder="e.g. 10" />
+        <small style="display:block; margin-top:6px; color:var(--gray-600);">
+          Enter any whole number of overs (1, 2, 3, 4, 5, 6, 7, ...).
+        </small>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="team1Select">Team A *</label>
+        <select id="team1Select"></select>
+      </div>
+      <div class="form-group">
+        <label for="team2Select">Team B *</label>
+        <select id="team2Select"></select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="tossWinnerSelect">Toss Winner *</label>
+        <select id="tossWinnerSelect"></select>
+      </div>
+      <div class="form-group">
+        <label for="tossDecisionSelect">Toss Decision *</label>
+        <select id="tossDecisionSelect">
+          <option value="Bat">Bat</option>
+          <option value="Bowl">Bowl</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="toStep2Btn">Next: Confirm Playing XI &rarr;</button>
+  </div>
+
+  <!-- STEP 2: Playing XI -->
+  <div class="card hidden" id="step2" style="margin-bottom:20px;">
+    <h2 style="margin-top:0;">Step 2 — Confirm Playing XI</h2>
+    <p style="color:var(--gray-700); font-size:0.9rem;">In this version, the full registered squad of 11 is used as the Playing XI for both teams.</p>
+    <div class="grid grid-2" id="xiPreview"></div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn btn-secondary" id="backToStep1Btn">&larr; Back</button>
+      <button class="btn btn-primary" id="toStep3Btn">Next: Openers &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Openers -->
+  <div class="card hidden" id="step3" style="margin-bottom:60px;">
+    <h2 style="margin-top:0;">Step 3 — Openers</h2>
+    <p id="battingFirstLabel" style="color:var(--gray-700); font-size:0.9rem;"></p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="strikerSelect">Striker (on strike) *</label>
+        <select id="strikerSelect"></select>
+      </div>
+      <div class="form-group">
+        <label for="nonStrikerSelect">Non-Striker *</label>
+        <select id="nonStrikerSelect"></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="bowlerSelect">Opening Bowler *</label>
+      <select id="bowlerSelect"></select>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn btn-secondary" id="backToStep2Btn">&larr; Back</button>
+      <button class="btn btn-primary" id="startMatchBtn">Start Match &#127951;</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/teams.js"></script>
+<script src="js/match.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/history.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  let allTeams = [];
+  let pendingMatch = null; // built after step 1
+
+  document.addEventListener("DOMContentLoaded", function () {
+    allTeams = StorageManager.getTeams();
+
+    if (allTeams.length < 2) {
+      document.getElementById("noTeamsWarning").classList.remove("hidden");
+      document.getElementById("step1").classList.add("hidden");
+      return;
+    }
+
+    populateTeamSelects();
+    document.getElementById("matchDate").valueAsDate = new Date();
+
+    document.getElementById("team1Select").addEventListener("change", populateTossWinnerOptions);
+    document.getElementById("team2Select").addEventListener("change", populateTossWinnerOptions);
+
+    document.getElementById("toStep2Btn").addEventListener("click", goToStep2);
+    document.getElementById("backToStep1Btn").addEventListener("click", () => showStep(1));
+    document.getElementById("toStep3Btn").addEventListener("click", goToStep3);
+    document.getElementById("backToStep2Btn").addEventListener("click", () => showStep(2));
+    document.getElementById("startMatchBtn").addEventListener("click", handleStartMatch);
+
+    populateTossWinnerOptions();
+  });
+
+  function populateTeamSelects() {
+    const options = allTeams.map((t) => `<option value="${t.id}">${t.name}</option>`).join("");
+    document.getElementById("team1Select").innerHTML = options;
+    document.getElementById("team2Select").innerHTML = options;
+    if (allTeams.length > 1) {
+      document.getElementById("team2Select").selectedIndex = 1;
+    }
+  }
+
+  function populateTossWinnerOptions() {
+    const t1 = getSelectedTeam("team1Select");
+    const t2 = getSelectedTeam("team2Select");
+    const sel = document.getElementById("tossWinnerSelect");
+    if (!t1 || !t2) return;
+    sel.innerHTML = `<option value="${t1.id}">${t1.name}</option><option value="${t2.id}">${t2.name}</option>`;
+  }
+
+  function getSelectedTeam(selectId) {
+    const id = document.getElementById(selectId).value;
+    return allTeams.find((t) => t.id === id) || null;
+  }
+
+  function showErrors(errors) {
+    const box = document.getElementById("errorBox");
+    box.innerHTML = "<strong>Please fix the following:</strong><ul>" +
+      errors.map((e) => `<li>${e}</li>`).join("") + "</ul>";
+    box.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function clearErrors() {
+    document.getElementById("errorBox").classList.add("hidden");
+  }
+
+  function showStep(n) {
+    document.getElementById("step1").classList.toggle("hidden", n !== 1);
+    document.getElementById("step2").classList.toggle("hidden", n !== 2);
+    document.getElementById("step3").classList.toggle("hidden", n !== 3);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function goToStep2() {
+    clearErrors();
+    const team1 = getSelectedTeam("team1Select");
+    const team2 = getSelectedTeam("team2Select");
+    const errors = [];
+
+    if (!team1 || !team2) errors.push("Please select both teams.");
+    if (team1 && team2 && team1.id === team2.id) errors.push("Team A and Team B must be different.");
+    if (!document.getElementById("matchName").value.trim()) errors.push("Match name is required.");
+    if (!document.getElementById("matchDate").value) errors.push("Match date is required.");
+
+    const oversValue = Number(document.getElementById("matchOvers").value);
+    if (!Number.isInteger(oversValue) || oversValue < 1) {
+      errors.push("Number of overs must be a whole number greater than 0.");
+    }
+
+    if (errors.length) {
+      showErrors(errors);
+      return;
+    }
+
+    const formData = {
+      matchName: document.getElementById("matchName").value,
+      date: document.getElementById("matchDate").value,
+      venue: document.getElementById("matchVenue").value,
+      overs: document.getElementById("matchOvers").value,
+      tossWinnerId: document.getElementById("tossWinnerSelect").value,
+      tossDecision: document.getElementById("tossDecisionSelect").value,
+    };
+
+    pendingMatch = MatchManager.buildMatch(formData, team1, team2);
+
+    renderXiPreview(pendingMatch);
+    showStep(2);
+  }
+
+  function renderXiPreview(match) {
+    const container = document.getElementById("xiPreview");
+    container.innerHTML = [match.team1, match.team2]
+      .map(
+        (team) => `
+      <div>
+        <h4>${team.name}</h4>
+        <ol>
+          ${team.players.map((p) => `<li>${p.name} <span style="color:var(--gray-400); font-size:0.8rem;">(${p.role})</span></li>`).join("")}
+        </ol>
+      </div>`
+      )
+      .join("");
+  }
+
+  function goToStep3() {
+    const battingTeam =
+      pendingMatch.battingFirstId === pendingMatch.team1.id ? pendingMatch.team1 : pendingMatch.team2;
+    const bowlingTeam =
+      pendingMatch.bowlingFirstId === pendingMatch.team1.id ? pendingMatch.team1 : pendingMatch.team2;
+
+    document.getElementById("battingFirstLabel").textContent =
+      battingTeam.name + " bat first. Select the two openers from " + battingTeam.name +
+      " and the opening bowler from " + bowlingTeam.name + ".";
+
+    const battingOptions = battingTeam.players
+      .map((p) => `<option value="${p.id}">${p.name}</option>`)
+      .join("");
+    const bowlingOptions = bowlingTeam.players
+      .map((p) => `<option value="${p.id}">${p.name}</option>`)
+      .join("");
+
+    document.getElementById("strikerSelect").innerHTML = battingOptions;
+    document.getElementById("nonStrikerSelect").innerHTML = battingOptions;
+    if (battingTeam.players.length > 1) {
+      document.getElementById("nonStrikerSelect").selectedIndex = 1;
+    }
+    document.getElementById("bowlerSelect").innerHTML = bowlingOptions;
+
+    showStep(3);
+  }
+
+  function handleStartMatch() {
+    clearErrors();
+    const strikerId = document.getElementById("strikerSelect").value;
+    const nonStrikerId = document.getElementById("nonStrikerSelect").value;
+    const bowlerId = document.getElementById("bowlerSelect").value;
+
+    if (strikerId === nonStrikerId) {
+      showErrors(["Striker and Non-Striker must be different players."]);
+      return;
+    }
+
+    MatchManager.startFirstInnings(pendingMatch, strikerId, nonStrikerId, bowlerId);
+    StorageManager.saveMatch(pendingMatch);
+    window.location.href = "live-match.html?id=" + pendingMatch.id;
+  }
+</script>
+</body>
+</html>

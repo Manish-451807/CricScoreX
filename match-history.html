@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cricket Scorer — Match History</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="nav-brand" href="index.html">&#127951; Cricket Scorer</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
+    <div class="nav-menu" id="navMenu">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="teams.html">Teams</a>
+      <a class="nav-link" href="create-match.html">Create Match</a>
+      <a class="nav-link" href="live-match.html">Live Matches</a>
+      <a class="nav-link" href="match-history.html">Match History</a>
+      <a class="nav-link" href="player-stats.html">Player Stats</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header page-header-actions">
+    <div><h1>Match History</h1><p>All completed matches, saved on this device.</p></div>
+    <input type="search" id="historySearch" class="compact-search" placeholder="Search matches..." aria-label="Search match history" />
+  </div>
+
+  <div id="historyList" style="margin-bottom:50px;"></div>
+</div>
+
+<div class="modal-overlay hidden" id="scorecardModal">
+  <div class="modal-box" style="max-width:700px;">
+    <h3>Full Scorecard</h3>
+    <div id="scorecardModalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="closeScorecardBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/teams.js"></script>
+<script src="js/match.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/history.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    HistoryManager.renderHistoryList(document.getElementById("historyList"));
+    document.getElementById("historySearch").addEventListener("input", filterHistory);
+
+    document.getElementById("historyList").addEventListener("click", (e) => {
+      const btn = e.target.closest(".btn-view-scorecard");
+      if (!btn) return;
+      openScorecard(btn.dataset.id);
+    });
+
+    document.getElementById("closeScorecardBtn").addEventListener("click", () => {
+      document.getElementById("scorecardModal").classList.add("hidden");
+    });
+  });
+
+  function openScorecard(matchId) {
+    const match = StorageManager.getMatchById(matchId);
+    if (!match) return;
+    HistoryManager.renderFullScorecard(match, document.getElementById("scorecardModalBody"));
+    document.getElementById("scorecardModalBody").insertAdjacentHTML("afterbegin", '<div class="scorecard-toolbar"><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨 Print Scorecard</button></div>');
+    document.getElementById("scorecardModal").classList.remove("hidden");
+  }
+
+  function filterHistory() {
+    const query = document.getElementById("historySearch").value.trim().toLowerCase();
+    document.querySelectorAll(".history-card").forEach((card) => {
+      card.classList.toggle("hidden", query && !card.textContent.toLowerCase().includes(query));
+    });
+  }
+</script>
+</body>
+</html>

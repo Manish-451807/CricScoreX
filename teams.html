@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cricket Scorer — My Teams</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="nav-brand" href="index.html">&#127951; Cricket Scorer</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
+    <div class="nav-menu" id="navMenu">
+      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="teams.html">Teams</a>
+      <a class="nav-link" href="create-match.html">Create Match</a>
+      <a class="nav-link" href="live-match.html">Live Matches</a>
+      <a class="nav-link" href="match-history.html">Match History</a>
+      <a class="nav-link" href="player-stats.html">Player Stats</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div>
+      <h1>My Teams</h1>
+      <p>All teams you've registered on this device.</p>
+    </div>
+    <div class="header-actions"><input type="search" id="teamSearch" class="compact-search" placeholder="Search teams..." aria-label="Search teams" /><a href="create-team.html" class="btn btn-primary">+ Create Team</a></div>
+  </div>
+
+  <div class="grid grid-3" id="teamsGrid" style="margin-bottom:40px;"></div>
+</div>
+
+<div class="modal-overlay hidden" id="viewTeamModal">
+  <div class="modal-box">
+    <h3 id="viewTeamTitle">Team</h3>
+    <div id="viewTeamBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="closeViewTeamBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/teams.js"></script>
+<script src="js/match.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/history.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderTeams();
+    document.getElementById("teamSearch").addEventListener("input", renderTeams);
+    document.getElementById("closeViewTeamBtn").addEventListener("click", () => {
+      document.getElementById("viewTeamModal").classList.add("hidden");
+    });
+  });
+
+  function renderTeams() {
+    const grid = document.getElementById("teamsGrid");
+    const query = (document.getElementById("teamSearch")?.value || "").trim().toLowerCase();
+    const teams = StorageManager.getTeams().filter((team) => !query || `${team.name} ${team.city || ""} ${team.captain || ""}`.toLowerCase().includes(query));
+
+    if (teams.length === 0) {
+      grid.innerHTML = '<p class="empty-state">No teams yet. Click "+ Create Team" to register your first team.</p>';
+      return;
+    }
+
+    grid.innerHTML = teams.map(teamCardTemplate).join("");
+
+    document.querySelectorAll(".btn-view-team").forEach((btn) =>
+      btn.addEventListener("click", () => openViewModal(btn.dataset.id))
+    );
+    document.querySelectorAll(".btn-delete-team").forEach((btn) =>
+      btn.addEventListener("click", () => handleDelete(btn.dataset.id))
+    );
+  }
+
+  function teamCardTemplate(team) {
+    const initials = team.name
+      .split(" ")
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+
+    const logoHtml = team.logo
+      ? `<img class="team-logo" src="${team.logo}" alt="${team.name} logo" />`
+      : `<div class="team-logo">${initials}</div>`;
+
+    return `
+      <div class="team-card">
+        <div class="team-card-banner">
+          ${logoHtml}
+          <div>
+            <div style="font-weight:800; font-size:1.05rem;">${team.name}</div>
+            <div style="font-size:0.82rem; opacity:0.9;">${team.city || ""}</div>
+          </div>
+        </div>
+        <div class="team-card-body">
+          <p><strong>Captain:</strong> ${team.captain}</p>
+          <p><strong>Players:</strong> ${team.players.length}</p>
+          <p><strong>Contact:</strong> ${team.contactName} — ${team.phone}</p>
+        </div>
+        <div class="team-card-actions">
+          <button class="btn btn-secondary btn-sm btn-view-team" data-id="${team.id}">View Team</button>
+          <a class="btn btn-secondary btn-sm" href="create-team.html?id=${team.id}">Edit</a>
+          <a class="btn btn-secondary btn-sm" href="create-match.html">Create Match</a>
+          <button class="btn btn-danger btn-sm btn-delete-team" data-id="${team.id}">Delete</button>
+        </div>
+      </div>`;
+  }
+
+  function openViewModal(teamId) {
+    const team = StorageManager.getTeamById(teamId);
+    if (!team) return;
+
+    document.getElementById("viewTeamTitle").textContent = team.name;
+
+    const rows = team.players
+      .map((p) => {
+        const tags = [];
+        if (p.isCaptain) tags.push('<span class="tag">C</span>');
+        if (p.isViceCaptain) tags.push('<span class="tag">VC</span>');
+        if (p.isWicketKeeper) tags.push('<span class="tag">WK</span>');
+        return `<tr>
+          <td>#${p.jerseyNumber}</td>
+          <td>${p.name} ${tags.join(" ")}</td>
+          <td>${p.role}</td>
+        </tr>`;
+      })
+      .join("");
+
+    document.getElementById("viewTeamBody").innerHTML = `
+      <p><strong>Captain:</strong> ${team.captain} &nbsp; <strong>Vice Captain:</strong> ${team.viceCaptain || "-"}</p>
+      <p><strong>City:</strong> ${team.city || "-"} &nbsp; <strong>Contact:</strong> ${team.contactName} (${team.phone})</p>
+      ${team.description ? `<p>${team.description}</p>` : ""}
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Name</th><th>Role</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    document.getElementById("viewTeamModal").classList.remove("hidden");
+  }
+
+  function handleDelete(teamId) {
+    if (!confirm("Delete this team? This cannot be undone.")) return;
+    const result = TeamManager.deleteTeam(teamId);
+    if (!result.success) {
+      alert(result.message);
+      return;
+    }
+    renderTeams();
+  }
+</script>
+</body>
+</html>
