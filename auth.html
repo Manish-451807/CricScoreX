@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Cricket Scorer</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f6f8;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 430px;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .auth-logo h1 {
+            margin: 0;
+            color: #075c35;
+            font-size: 30px;
+        }
+
+        .auth-logo p {
+            color: #667085;
+            margin-top: 8px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .auth-tab.active {
+            color: #075c35;
+            border-bottom: 3px solid #f5b800;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #075c35;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #f5b800;
+            color: #102a1c;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .auth-button:hover {
+            opacity: 0.9;
+        }
+
+        .auth-message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .auth-message.error {
+            color: #dc3545;
+        }
+
+        .auth-message.success {
+            color: #198754;
+        }
+
+        .demo-note {
+            margin-top: 20px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #667085;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            <h1>🏏 Cricket Scorer</h1>
+            <p>Manage your cricket matches easily</p>
+        </div>
+
+        <!-- Login/Register Tabs -->
+        <div class="auth-tabs">
+
+            <button
+                type="button"
+                class="auth-tab active"
+                id="loginTab"
+                onclick="showAuthForm('login')">
+                Login
+            </button>
+
+            <button
+                type="button"
+                class="auth-tab"
+                id="registerTab"
+                onclick="showAuthForm('register')">
+                Register
+            </button>
+
+        </div>
+
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="auth-form active">
+
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="Enter your email"
+                    required>
+            </div>
+
+
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter your password"
+                    required>
+            </div>
+
+
+            <button type="submit" class="auth-button">
+                Login
+            </button>
+
+        </form>
+
+
+        <!-- REGISTER FORM -->
+        <form id="registerForm" class="auth-form">
+
+            <div class="form-group">
+                <label for="registerName">Full Name</label>
+
+                <input
+                    type="text"
+                    id="registerName"
+                    placeholder="Enter your name"
+                    required>
+            </div>
+
+
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+
+                <input
+                    type="email"
+                    id="registerEmail"
+                    placeholder="Enter your email"
+                    required>
+            </div>
+
+
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+
+                <input
+                    type="password"
+                    id="registerPassword"
+                    placeholder="Create a password"
+                    minlength="6"
+                    required>
+            </div>
+
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    placeholder="Confirm your password"
+                    minlength="6"
+                    required>
+            </div>
+
+
+            <button type="submit" class="auth-button">
+                Create Account
+            </button>
+
+        </form>
+
+
+        <div id="authMessage" class="auth-message"></div>
+
+        <div class="demo-note">
+            Demo authentication for the browser-based Cricket Scorer.
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="js/auth.js"></script>
+
+</body>
+</html>

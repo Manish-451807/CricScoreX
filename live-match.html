@@ -10,15 +10,21 @@
 
 <nav class="navbar">
   <div class="navbar-inner">
-    <a class="nav-brand" href="index.html">&#127951; Cricket Scorer</a>
+    <a class="nav-brand" href="dashboard.html">&#127951; Cricket Scorer</a>
     <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
     <div class="nav-menu" id="navMenu">
-      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="dashboard.html">Dashboard</a>
       <a class="nav-link" href="teams.html">Teams</a>
       <a class="nav-link" href="create-match.html">Create Match</a>
       <a class="nav-link" href="live-match.html">Live Matches</a>
       <a class="nav-link" href="match-history.html">Match History</a>
       <a class="nav-link" href="player-stats.html">Player Stats</a>
+
+      <span id="currentUserName" class="current-user-name"></span>
+
+      <button class="logout-btn" onclick="logout()">
+    Logout
+</button>
     </div>
   </div>
 </nav>
@@ -33,7 +39,7 @@
 
   <div id="notFoundView" class="hidden">
     <div class="page-header"><h1>Match Not Found</h1></div>
-    <p>This match doesn't exist on this device. <a href="create-match.html">Create a new match</a> or go back to the <a href="index.html">dashboard</a>.</p>
+    <p>This match doesn't exist on this device. <a href="create-match.html">Create a new match</a> or go back to the <a href="dashboard.html">dashboard</a>.</p>
   </div>
 
   <!-- Main scoring view -->
@@ -143,7 +149,7 @@
   <div id="resultView" class="hidden" style="margin-bottom:60px;">
     <div id="resultScorecard"></div>
     <a href="match-history.html" class="btn btn-primary">Go to Match History</a>
-    <a href="index.html" class="btn btn-secondary">Back to Dashboard</a>
+    <a href="dashboard.html" class="btn btn-secondary">Back to Dashboard</a>
   </div>
 
 </div>
@@ -246,6 +252,12 @@
 <script src="js/scoring.js"></script>
 <script src="js/history.js"></script>
 <script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+    requireAuth();
+</script>
+
 <script>
   let currentMatch = null;
   let pendingExtraType = null; // 'wide' | 'noball' | 'bye' | 'legbye'

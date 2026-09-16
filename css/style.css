@@ -1077,3 +1077,39 @@ table.data-table th {
     display: none !important;
   }
 }
+
+/* =========================================
+   Authentication
+========================================= */
+
+.logout-btn {
+    border: none;
+    background: #dc3545;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.logout-btn:hover {
+    opacity: 0.9;
+}
+
+/* =========================================
+   Current User
+========================================= */
+
+.current-user-name {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f4f6f8;
+    color: #075c35;
+    font-size: 14px;
+    font-weight: 600;
+}

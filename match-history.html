@@ -10,15 +10,22 @@
 
 <nav class="navbar">
   <div class="navbar-inner">
-    <a class="nav-brand" href="index.html">&#127951; Cricket Scorer</a>
+    <a class="nav-brand" href="dashboard.html">&#127951; Cricket Scorer</a>
     <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
     <div class="nav-menu" id="navMenu">
-      <a class="nav-link" href="index.html">Dashboard</a>
+      <a class="nav-link" href="dashboard.html">Dashboard</a>
       <a class="nav-link" href="teams.html">Teams</a>
       <a class="nav-link" href="create-match.html">Create Match</a>
       <a class="nav-link" href="live-match.html">Live Matches</a>
       <a class="nav-link" href="match-history.html">Match History</a>
       <a class="nav-link" href="player-stats.html">Player Stats</a>
+
+      <span id="currentUserName" class="current-user-name"></span>
+
+      <button class="logout-btn" onclick="logout()">
+    Logout
+</button>
+
     </div>
   </div>
 </nav>
@@ -48,6 +55,11 @@
 <script src="js/scoring.js"></script>
 <script src="js/history.js"></script>
 <script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+    requireAuth();
+</script>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
