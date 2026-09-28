@@ -1,4 +1,4 @@
-# 🏏 Cricket Scorer
+# 🏏 CricScoreX
 
 A browser-based cricket scoring and statistics application built entirely with **HTML, CSS, and Vanilla JavaScript**.
 
@@ -102,7 +102,7 @@ cricket-scorer/
 
 ## 🖼️ Screenshots
 
-The following screenshots demonstrate the main features and user interface of the Cricket Scorer application.
+The following screenshots demonstrate the main features and user interface of the CricScoreX application.
 
 ### 🏠 Dashboard
 
