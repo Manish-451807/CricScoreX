@@ -5,7 +5,7 @@
 
 :root {
   --green-900: #0b3d24;
-  --green-700: #14532d;
+  --green-700: #3b895a;
   --green-600: #1c7c3f;
   --green-500: #2e9e52;
   --green-100: #e6f7ec;
@@ -1112,4 +1112,12 @@ table.data-table th {
     color: #075c35;
     font-size: 14px;
     font-weight: 600;
+}
+
+.auth-logo img {
+    width: 220px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
